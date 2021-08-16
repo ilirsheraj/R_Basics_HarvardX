@@ -1,0 +1,163 @@
+---
+title: "week1"
+author: "Ilir_Sheraj"
+date: "8/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Getting Started with R
+
+```{r}
+library(tidyverse)
+library(dslabs)
+data(murders)
+```
+
+```{r}
+class(murders)
+```
+
+```{r}
+str(murders)
+```
+
+```{r}
+head(murders)
+```
+
+```{r}
+murders$population
+```
+
+```{r}
+names(murders)
+```
+
+```{r}
+class(murders$state)
+```
+
+```{r}
+class(murders$population)
+```
+
+```{r}
+z <- 3 == 2
+class(z)
+```
+
+```{r}
+class(murders$region)
+```
+
+# Assignment
+
+We're going to be using the following dataset for this module. Run this code in the console.
+library(dslabs)
+data(murders)
+Next, use the function str to examine the structure of the murders object. We can see that this object is a data frame with 51 rows and five columns. Which of the following best describes the variables represented in this data frame:
+
+```{r}
+str(murders)
+```
+
+For this question, we will use the names() function to extract the column names of the murders data frame. What are the column names used by the murders data frame for the five variables?
+
+```{r}
+names(murders)
+```
+
+Use the accessor $ to extract the state abbreviations and assign them to the object a. What is the class of this object?
+
+```{r}
+a <- class(murders$abb)
+a
+```
+
+We extract the population like this:
+
+```{r}
+p <- murders$population
+```
+
+This is how we do the same with the square brackets:
+
+```{r}
+o <- murders[["population"]]
+```
+
+We can confirm these two are the same
+
+```{r}
+identical(o, p)
+```
+
+For this question we will combine two functions, in a nested way, to determine the number of unique categories. Use the functions levels and length to determine the number of regions defined by this dataset and contained in murders$region.
+
+```{r}
+length(levels(murders$region))
+```
+
+Use the table function in one line of code to create a table showing the number of states per region.
+
+```{r}
+table(murders$region)
+```
+
+# Overall Assessment
+
+Quadratic Equation
+
+```{r}
+a <- 2
+b <- -1
+c <- -4
+
+solution_1 <- (-b + sqrt(b^2 - 4*a*c))/(2*a)
+solution_2 <- (-b - sqrt(b^2 - 4*a*c))/(2*a)
+```
+
+```{r}
+solution_1
+```
+
+```{r}
+solution_2
+```
+
+Use R to compute log base 4 of 1024. You can use the help() function to learn how to use arguments to change the base of the log() function.
+
+```{r}
+log(1024, base = 4)
+```
+
+The movielens dataset in the dslabs package includes data on a variety of movies and their rating by a particular user. Load the movielens dataset: Begin your exploration of this dataset by looking at the structure of the dataset and variable types.
+
+```{r}
+library(dslabs)
+data(movielens)
+str(movielens)
+```
+
+```{r}
+dim(movielens)
+```
+
+```{r}
+class(movielens$title)
+```
+
+```{r}
+class(movielens$genres)
+```
+
+We already know we can use the levels() function to determine the levels of a factor. A different function, nlevels(), may be used to determine the number of levels of a factor. Use this function to determine how many levels are in the factor genres in the movielens data frame.
+
+```{r}
+nlevels(movielens$genres)
+```
+

@@ -1,0 +1,402 @@
+---
+title: "week3"
+author: "Ilir_Sheraj"
+date: "8/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Indexing Using Logical Operations
+
+```{r}
+library(dslabs)
+data("murders")
+murder_rate <- murders$total/murders$population*100000
+```
+
+```{r}
+index <- murder_rate <= 0.71
+index
+```
+
+```{r}
+murders$state[index]
+```
+
+```{r}
+sum(index)
+```
+
+```{r}
+west <- murders$region == "West"
+safe <- murder_rate <= 1
+# index <- west & safe
+murders$state[west & safe]
+```
+
+# Indexing Functions
+
+```{r}
+x <- c(FALSE, TRUE, FALSE, TRUE, TRUE, FALSE)
+which(x)
+```
+
+```{r}
+index <- which(murders$state == "Massachusetts")
+murder_rate[index]
+```
+
+```{r}
+index <- match(c("New York", "Florida", "Texas"), murders$state)
+murders$state[index]
+```
+
+```{r}
+murder_rate[index]
+```
+
+```{r}
+x <- c("a", "b", "c", "d", "e")
+y <- c("a", "d", "f")
+y %in% x
+```
+
+```{r}
+c("Boston", "Dakota", "Washington") %in% murders$state
+```
+
+# Assessment
+
+Compute the per 100,000 murder rate for each state and store it in an object called murder_rate. Then use the logical operators to create a logical vector, name it low, that tells us which entries of murder_rate are lower than 1, and which are not, in one line of code.
+
+```{r}
+murder_rate <- murders$total / murders$population * 100000
+low <- murders$state[murder_rate <= 1]
+low
+```
+
+Use the results from the previous exercise and the function which to determine the indices of murder_rate associated with values lower than 1.
+
+```{r}
+which(murder_rate < 1)
+```
+
+Use the results from the previous exercise to report the names of the states with murder rates lower than 1, using the square brackets to retrieve the names of the states from the dataset.
+
+```{r}
+low <- murder_rate < 1
+murders$state[low]
+```
+
+Now we will extend the code from the previous exercises to report the states in the Northeast with a murder rate lower than 1. Define low as before. Use the & operator to create a new object ind that is true when low is true and the state is in the Northeast Use the brackets [ and ind to show the state names that satisfy this condition
+
+```{r}
+low <- murder_rate < 1
+ind <- low & murders$region == "Northeast"
+murders$state[low & ind]
+```
+
+In a previous exercise we computed the murder rate for each state and the average of these numbers. How many states are below the average?
+
+```{r}
+avg <- mean(murder_rate)
+sum(murder_rate < avg)
+```
+
+In this exercise we use the match function to identify the states with abbreviations AK, MI, and IA. Define a character vector with the abbreviations. Start by defining an index of the entries of murders$abb that match the three abbreviations. Use the [ operator to extract the states.
+
+```{r}
+abbs <- c("AK", "MI", "IA")
+ind <- match(abbs, murders$abb)
+murders$state[ind]
+```
+
+Which of the following are actual abbreviations: MA, ME, MI, MO, MU? Define a character vector with the abbreviations MA, ME, MI, MO, MU. Use the %in% operator to create a logical vector that is TRUE when the abbreviation is in murders$abb.
+
+```{r}
+abbs <- c("MA", "ME", "MI", "MO", "MU")
+abbs %in% murders$abb
+```
+
+In a previous exercise we computed the index abbs%in%murders$abb. Based on that, and using the which function and the ! operator, get the index of the entries of abbs that are not abbreviations. Show the entries of abbs that are not actual abbreviations.
+
+```{r}
+ind <- which(!abbs %in% murders$abb)
+abbs[ind]
+```
+
+# Basic Data Wrangling
+
+```{r}
+library(dplyr)
+library(dslabs)
+murders <- mutate(murders, rate = total/population*100000)
+head(murders)
+```
+
+```{r}
+filter(murders, rate <= 0.71)
+```
+
+```{r}
+new_table <- select(murders, state, region, rate)
+filter(new_table, rate <= 0.71)
+```
+
+```{r}
+murders %>% select(state, region, rate) %>% filter(rate <= 0.71)
+```
+
+# Creating DataFrames
+
+```{r}
+grades <- data.frame(names = c("John", "Juan", "Jean", "Yao"),
+                     exam_1 = c(95, 80, 90, 85),
+                     exam_2 = c(90, 85, 85, 90))
+grades
+```
+
+```{r}
+class(grades$names)
+```
+
+# Assessment
+
+Use the function mutate to add a murders column named rate with the per 100,000 murder rate. Make sure you redefine murders as done in the example code above. Remember the murder rate is defined as the total murders divided by the population size times 100,000.
+
+```{r}
+murders <- mutate(murders, rate = total/population*100000)
+```
+
+Use the function mutate to add a column rank containing the rank, from highest to lowest murder rate. Make sure you redefine murders.
+
+```{r}
+murders <- mutate(murders, rank = rank(-rate))
+```
+
+Use select to show the state names and abbreviations in murders. Just show it, do not define a new object.
+
+```{r}
+select(murders, state, abb)
+```
+
+Use filter to show the top 5 states with the highest murder rates. After we add murder rate and rank, do not change the murders dataset, just show the result. Note that you can filter based on the rank column.
+
+```{r}
+murders <- mutate(murders, rate = total/population * 100000, rank = rank(-rate))
+filter(murders, rank < 6)
+```
+
+Create a new data frame called no_south that removes states from the South region. How many states are in this category? You can use the function nrow for this.
+
+```{r}
+no_south <- filter(murders, region != "South")
+nrow(no_south)
+```
+
+Create a new data frame called murders_nw with only the states from the Northeast and the West. How many states are in this category?
+
+```{r}
+murders_nw <- filter(murders, region %in% c("Northeast", "West"))
+nrow(murders_nw)
+```
+
+Add a murder rate column and a rank column as done before Create a table, call it my_states, that satisfies both the conditions: it is in the Northeast or West and the murder rate is less than 1. Use select to show only the state name, the rate and the rank
+
+```{r}
+my_states <- filter(murders, region %in% c("Northeast", "West") & rate < 1)
+select(my_states, state, rate, rank)
+```
+
+Repeat the previous exercise, but now instead of creating a new object, show the result and only include the state, rate, and rank columns in that order. Use a pipe %>% to do this in just one line.
+
+```{r}
+filter(murders, region %in% c("Northeast", "West") & rate < 1) %>% select(state, rate, rank)
+```
+
+Use  one line of code to create a new data frame, called my_states, that has murder rate and rank columns (with the rank ordered from highest to lowest), considers only states in the Northeast or West which have a murder rate lower than 1, and contain only the state, rate, and rank columns. The line should have four components separated by three %>% operators: The original dataset murders A call to mutate to add the murder rate and the rank. A call to filter to keep only the states from the Northeast or West and that have a murder rate below 1. A call to select that keeps only the columns with the state name, the murder rate, and the rank. The line should look something like this my_states <- murders %>% mutate something %>% filter something %>% select something. Columns in the final data frame MUST be in the order: state, rate, rank.
+
+```{r}
+data("murders")
+my_states <- murders %>% mutate(rate = total/population*100000, rank = rank(-rate)) %>% 
+  filter(region %in% c("Northeast", "West") & rate < 1) %>% 
+  select(state, rate, rank)
+my_states
+```
+
+# Basic Plots
+
+```{r}
+population_in_millions <- murders$population/10^6
+total_gun_murders <- murders$total
+plot(population_in_millions, total_gun_murders)
+```
+
+```{r}
+hist(murder_rate, breaks = 50)
+```
+
+```{r}
+murders$state[which.max(murder_rate)]
+```
+
+```{r}
+murders <- mutate(murders, rate = total/population*100000)
+boxplot(rate~region, data = murders)
+```
+
+# Assessment
+
+We made a plot of total murders versus population and noted a strong relationship: not surprisingly states with larger populations had more murders. Note that many states have populations below 5 million and are bunched up in the plot. We may gain further insights from making this plot in the log scale. Transform the variables using the log base 10 transformation Plot the log transformed total murders versus population.
+
+```{r}
+data(murders)
+log10_population <- log10(murders$population)
+log10_total_gun_murders <- log10(murders$total)
+plot(log10_population, log10_total_gun_murders)
+```
+
+Compute the population in millions and save it to the object population_in_millions. Create a histogram of the state populations using the function hist
+
+```{r}
+population_in_millions <- murders$population/10^6
+hist(population_in_millions)
+```
+
+In one line of code: Stratify the state populations by region. Generate boxplots for the strata. Note that you can achieve this using this population~region inside boxplot to generate the strata and specify the dataset with the data argument.
+
+```{r}
+boxplot(population~region, data = murders)
+```
+
+# Week's Assessment
+
+```{r}
+library(dslabs)
+data("heights")
+options(digits = 3)
+```
+
+First, determine the average height in this dataset. Then create a logical vector ind with the indices for those individuals who are above average height. How many individuals in the dataset are above average height?
+
+```{r}
+str(heights)
+```
+
+```{r}
+length(heights$height[heights$height > mean(heights$height)])
+```
+
+How many individuals in the dataset are above average height and are female?
+
+```{r}
+length(heights$height[heights$height > mean(heights$height) & heights$sex == "Female"])
+
+```
+
+If you use mean() on a logical (TRUE/FALSE) vector, it returns the proportion of observations that are TRUE. What proportion of individuals in the dataset are female?
+
+```{r}
+mean(heights$sex == "Female")
+```
+
+Determine the minimum height in the heights dataset.
+
+```{r}
+min(heights$height)
+```
+
+```{r}
+match(50, heights$height)
+```
+
+Subset the sex column of the dataset by the index in 4b to determine the individual’s sex.
+
+```{r}
+heights$sex[1032]
+```
+
+This question takes you through three steps to determine how many of the integer height values between the minimum and maximum heights are not actual heights of individuals in the heights dataset. Determine the maximum height.
+
+```{r}
+max(heights$height)
+```
+
+Which integer values are between the maximum and minimum heights? For example, if the minimum height is 10.2 and the maximum height is 20.8, your answer should be x <- 11:20 to capture the integers in between those values. (If either the maximum or minimum height are integers, include those values too.). Write code to create a vector x that includes the integers between the minimum and maximum heights (as numbers).
+
+```{r}
+x <- min(ceiling(heights$height)): max(floor(heights$height))
+x
+```
+
+How many of the integers in x are NOT heights in the dataset?
+
+```{r}
+library(dplyr)
+x <- 50:82
+sum(!(x %in% heights$height))
+```
+
+Using the heights dataset, create a new column of heights in centimeters named ht_cm. Recall that 1 inch = 2.54 centimeters. Save the resulting dataset as heights2. What is the height in centimeters of the 18th individual (index 18)?
+
+```{r}
+heights2 <- heights %>% mutate(ht_cm = height*2.54)
+heights2$ht_cm[18]
+```
+
+What is the mean height in centimeters?
+
+```{r}
+mean(heights2$ht_cm)
+```
+
+Create a data frame females by filtering the heights2 data to contain only female individuals.
+
+```{r}
+heights2 %>% filter(sex == "Female") %>% nrow()
+```
+
+What is the mean height of the females in centimeters?
+
+```{r}
+heights2 %>% filter(sex == "Female") %>% select(ht_cm) %>% unlist() %>% mean()
+```
+
+```{r}
+heights2 %>% filter(sex == "Female") %>% select(ht_cm) %>% summarize(mean(ht_cm))
+```
+
+The olive dataset in dslabs contains composition in percentage of eight fatty acids found in the lipid fraction of 572 Italian olive oils:
+
+```{r}
+data("olive")
+head(olive)
+```
+
+```{r}
+str(olive)
+```
+
+Plot the percent palmitic acid versus palmitoleic acid in a scatterplot. What relationship do you see?
+
+```{r}
+palmitic <- olive %>% select(palmitic) %>% unlist()
+palmitoleic <- olive %>% select(palmitoleic) %>% unlist()
+plot(palmitic, palmitoleic)
+```
+
+Create a histogram of the percentage of eicosenoic acid in olive.
+
+```{r}
+eicosanoic <- olive %>% select(eicosenoic) %>% unlist()
+hist(eicosanoic)
+```
+
+Make a boxplot of palmitic acid percentage in olive with separate distributions for each region.
+
+```{r}
+boxplot(olive$palmitic ~ olive$region)
+```
